@@ -1,0 +1,134 @@
+Copyright © 2026 Josh Carter. All rights reserved.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEXUS PUBLIC LICENSE — NON-COMMERCIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nexus is digital public infrastructure.
+
+It is built to be freely used, freely shared, and freely learned from —
+by individuals, students, educators, and researchers — without cost and
+without restriction on that use. It is not built to be a commercial
+asset, a product, or a component of anyone's business model.
+
+This license preserves that intent.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 1 — PERMITTED USE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You are free to:
+
+  Use       Run Nexus locally for personal, educational, or research
+            purposes, without restriction.
+
+  Share     Copy and redistribute Nexus in any medium or format,
+            provided you include this license and attribution to the
+            original author.
+
+  Adapt     Modify, build upon, or fork Nexus for non-commercial
+            purposes, provided any modified version is released under
+            this same license and clearly attributes the original work.
+
+These permissions apply to individuals, students, educators, academic
+institutions, nonprofits, and independent researchers. The test is
+always the purpose of the use — not the identity of the user.
+
+Use is permitted when it is not primarily intended for or directed
+toward commercial advantage or monetary compensation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 2 — CONDITIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you share or distribute Nexus, or any work based on Nexus, you must:
+
+  1. Include this license in full.
+
+  2. Retain the following attribution in any copy, distribution,
+     or derivative work:
+
+       Nexus — made by Josh Carter
+       https://github.com/datatlanta-art/mira-os
+
+  3. Clearly indicate if you have made modifications to the original.
+
+  4. License any derivative work under these same terms. You may not
+     apply a more permissive license to a modified version of Nexus,
+     or otherwise relicense it in a way that removes the non-commercial
+     restriction.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 3 — PROHIBITED WITHOUT PERMISSION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The following uses are not permitted under this license:
+
+  — Using Nexus, or any portion of it, in a product or service offered
+    for payment, subscription, or any form of monetary compensation.
+
+  — Offering Nexus or a derivative as a hosted or managed service
+    where access is monetized.
+
+  — Embedding Nexus, or any component of Nexus, in a commercial
+    product, platform, or application.
+
+  — Using Nexus as the foundation, component, or basis of a business
+    model, revenue stream, or commercial offering of any kind.
+
+  — White-labeling, rebranding, or redistributing Nexus under a
+    different name for commercial purposes.
+
+  — Removing or obscuring the attribution, copyright notice, or
+    license terms from any copy or derivative.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 4 — COMMERCIAL LICENSING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Commercial use of Nexus is not permitted under this license.
+
+If you would like to use Nexus for commercial purposes — including
+integration into a product, deployment as a paid service, or use as
+part of a business model — a separate commercial license is required.
+
+To discuss commercial licensing, contact:
+
+  Josh Carter
+  joshcarter@amina.tools
+
+Commercial licensing inquiries are welcome. This license is not
+intended to prevent collaboration — it is intended to ensure that any
+commercial use is deliberate, agreed upon, and fair to the original
+work and its intent.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 5 — NO WARRANTY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nexus is provided "as is", without warranty of any kind, express or
+implied, including but not limited to the warranties of merchantability,
+fitness for a particular purpose, and non-infringement.
+
+In no event shall Josh Carter be liable for any claim, damages, or
+other liability arising from, out of, or in connection with Nexus or
+the use of Nexus.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 6 — SCOPE AND JURISDICTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This license applies worldwide to all uses of Nexus and any derivative
+works, regardless of jurisdiction. Copyright law of the applicable
+jurisdiction governs enforcement.
+
+If any provision of this license is found unenforceable under applicable
+law, the remaining provisions remain in full effect.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nexus is digital public infrastructure.
+Use it. Learn from it. Build on it.
+Just keep it in the commons.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

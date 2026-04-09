@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexus Preview — Sandbox only</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --sand: #f0ebe1;
+    --ink: #1c1814;
+    --ink-soft: #4a4540;
+    --ink-mute: #8a837a;
+    --amber: #c47c2b;
+    --amber-light: #e8a84e;
+    --clay: #9b5c47;
+    --slate: #4a6075;
+    --dark-bg: #0c0e13;
+    --dark-surface: #13161e;
+    --dark-border: #1e222e;
+    --dark-text: #c8cdd8;
+    --dark-mute: #5a6070;
+    --blue: #5b8af0;
+    --blue-dim: #3d6acc;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── VIEWS ─── */
+  .view { display: none; min-height: 100vh; flex-direction: column; }
+  .view.active { display: flex; }
+
+  /* ─── LANDING ─── */
+  #landing {
+    background: var(--sand);
+    color: var(--ink);
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .landing-grain {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  .landing-inner { max-width: 680px; position: relative; z-index: 1; }
+
+  .nexus-wordmark {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 8vw, 6rem);
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .landing-tagline {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin-bottom: 3.5rem;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+
+  .space-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+
+  @media (max-width: 500px) { .space-cards { grid-template-columns: 1fr; } }
+
+  .space-card {
+    border: none; cursor: pointer;
+    border-radius: 4px;
+    padding: 2rem 1.5rem;
+    text-align: left;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .space-card:hover { transform: translateY(-3px); }
+
+  .space-card.sandbox-card {
+    background: #fff;
+    box-shadow: 0 2px 20px rgba(28,24,20,0.08), 0 1px 4px rgba(28,24,20,0.06);
+  }
+  .space-card.sandbox-card:hover {
+    box-shadow: 0 8px 32px rgba(28,24,20,0.12), 0 2px 8px rgba(28,24,20,0.08);
+  }
+
+  .space-card.lab-card {
+    background: var(--dark-bg);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+  .space-card.lab-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .card-label {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .sandbox-card .card-label { color: var(--ink); }
+  .lab-card .card-label { color: var(--dark-text); }
+
+  .card-sub {
+    font-size: 0.875rem;
+    font-weight: 300;
+  }
+  .sandbox-card .card-sub { color: var(--ink-soft); }
+  .lab-card .card-sub { color: var(--dark-mute); }
+
+  .card-arrow {
+    position: absolute; bottom: 1.25rem; right: 1.25rem;
+    font-size: 1.25rem; opacity: 0.35;
+  }
+  .sandbox-card .card-arrow { color: var(--ink); }
+  .lab-card .card-arrow { color: var(--dark-text); }
+
+  /* ─── SHARED NAV ─── */
+  .top-nav {
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.75rem;
+    border-bottom: 1px solid;
+    flex-shrink: 0;
+  }
+  .nav-sandbox { background: #fff; border-color: rgba(28,24,20,0.1); }
+  .nav-lab { background: var(--dark-surface); border-color: var(--dark-border); }
+
+  .nav-left { display: flex; align-items: center; gap: 1rem; }
+
+  .nav-home {
+    background: none; border: none; cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+  }
+  .nav-sandbox .nav-home { color: var(--ink); }
+  .nav-lab .nav-home { color: var(--dark-text); }
+
+  .nav-space {
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+  }
+  .nav-sandbox .nav-space { background: var(--sand); color: var(--ink-soft); }
+  .nav-lab .nav-space { background: var(--dark-border); color: var(--dark-mute); }
+
+  .nav-back {
+    background: none; border: none; cursor: pointer;
+    font-size: 0.8rem; font-weight: 400;
+    display: flex; align-items: center; gap: 0.35rem;
+    transition: opacity 0.15s;
+  }
+  .nav-back:hover { opacity: 0.7; }
+  .nav-sandbox .nav-back { color: var(--ink-soft); }
+  .nav-lab .nav-back { color: var(--dark-mute); }
+
+  /* ─── SANDBOX ─── */
+  #sandbox {
+    background: var(--sand);
+    color: var(--ink);
+  }
+
+  .sb-body { flex: 1; padding: 2rem 1.75rem; max-width: 900px; margin: 0 auto; width: 100%; }
+
+  .sb-concepts {
+    display: flex; gap: 0.5rem; margin-bottom: 2.5rem;
+  }
+
+  .sb-concept-btn {
+    background: none; border: 1.5px solid transparent;
+    padding: 0.5rem 1.25rem; border-radius: 100px;
+    font-family: var(--font-body); font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    color: var(--ink-soft);
+  }
+  .sb-concept-btn:hover { border-color: rgba(28,24,20,0.25); color: var(--ink); }
+  .sb-concept-btn.active {
+    background: var(--ink); color: var(--sand); border-color: var(--ink);
+  }
+
+  .sb-concept-area { display: none; }
+  .sb-concept-area.active { display: block; }
+
+  .concept-title {
+    font-family: var(--font-display);
+    font-size: 2rem; margin-bottom: 0.35rem;
+    color: var(--ink);
+  }
+
+  .concept-desc { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 1.75rem; font-weight: 300; }
+
+  .level-tabs {
+    display: flex; gap: 0; margin-bottom: 2rem;
+    border-bottom: 1.5px solid rgba(28,24,20,0.12);
+  }
+
+  .level-tab {
+    background: none; border: none; cursor: pointer;
+    padding: 0.6rem 1.25rem; font-family: var(--font-body);
+    font-size: 0.85rem; font-weight: 500; color: var(--ink-mute);
+    border-bottom: 2px solid transparent; margin-bottom: -1.5px;
+    transition: all 0.15s;
+  }
+  .level-tab:hover { color: var(--ink); }
+  .level-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+
+  .level-panel { display: none; }
+  .level-panel.active { display: block; }
+
+  /* Canvas areas */
+  .play-canvas {
+    background: #fff; border-radius: 6px;
+    padding: 2rem;
+    box-shadow: 0 1px 8px rgba(28,24,20,0.07);
+    min-height: 280px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Recommend nodes */
+  .rec-nodes { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+  .rec-node {
+    padding: 0.55rem 1.1rem; border-radius: 100px;
+    background: var(--sand); border: 1.5px solid rgba(28,24,20,0.12);
+    font-size: 0.85rem; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; color: var(--ink);
+  }
+  .rec-node:hover { border-color: var(--amber); color: var(--amber); }
+  .rec-node.selected { background: var(--ink); color: var(--sand); border-color: var(--ink); }
+  .rec-node.neighbor { background: rgba(196,124,43,0.12); border-color: var(--amber); color: var(--amber); }
+  .rec-node.dim { opacity: 0.3; }
+
+  /* Group canvas */
+  .group-canvas { width: 100%; height: 260px; position: relative; }
+  .group-dot {
+    position: absolute; width: 38px; height: 38px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 500; cursor: default;
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    color: #fff; line-height: 1.1; text-align: center;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+
+  /* Predict */
+  .predict-svg { width: 100%; height: 220px; }
+
+  /* See panels */
+  .see-card {
+    background: #fff; border-radius: 6px; padding: 2rem;
+    box-shadow: 0 1px 8px rgba(28,24,20,0.07);
+  }
+  .see-explanation {
+    font-size: 1rem; line-height: 1.7; color: var(--ink-soft);
+    margin-bottom: 1.5rem;
+  }
+  .see-diagram {
+    background: var(--sand); border-radius: 4px;
+    padding: 1.5rem; display: flex; align-items: center;
+    justify-content: center; gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .diagram-node {
+    background: #fff; border: 1.5px solid rgba(28,24,20,0.15);
+    border-radius: 6px; padding: 0.75rem 1.25rem;
+    font-size: 0.8rem; font-weight: 500; color: var(--ink);
+  }
+  .diagram-arrow { color: var(--amber); font-size: 1.25rem; }
+
+  /* Build panels */
+  .build-card {
+    background: #fff; border-radius: 6px; padding: 2rem;
+    box-shadow: 0 1px 8px rgba(28,24,20,0.07);
+  }
+  .build-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 0.5rem; }
+  .build-slider {
+    -webkit-appearance: none; width: 100%; height: 4px;
+    border-radius: 2px; background: rgba(28,24,20,0.12);
+    outline: none; margin: 0.75rem 0 1.5rem;
+  }
+  .build-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--ink); cursor: pointer;
+    box-shadow: 0 1px 4px rgba(28,24,20,0.2);
+  }
+  .build-slider-labels {
+    display: flex; justify-content: space-between;
+    font-size: 0.75rem; color: var(--ink-mute); margin-top: -1rem; margin-bottom: 1.5rem;
+  }
+
+  .bridge-invite {
+    margin-top: 1.5rem; padding: 1.25rem; border-radius: 4px;
+    background: var(--dark-bg); display: flex; align-items: center;
+    justify-content: space-between; gap: 1rem;
+  }
+  .bridge-text { font-size: 0.875rem; color: var(--dark-mute); }
+  .bridge-btn {
+    background: var(--blue); color: #fff; border: none;
+    padding: 0.5rem 1.25rem; border-radius: 3px;
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .bridge-btn:hover { background: var(--blue-dim); }
+
+  /* Cluster legend */
+  .cluster-legend {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+  .cluster-chip {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; color: var(--ink-soft);
+  }
+  .cluster-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .play-hint { font-size: 0.8rem; color: var(--ink-mute); text-align: center; margin-top: 0.75rem; }
+
+  .play-btn {
+    background: var(--ink); color: var(--sand);
+    border: none; padding: 0.6rem 1.5rem;
+    border-radius: 3px; font-family: var(--font-body);
+    font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    transition: opacity 0.15s; margin-top: 0.75rem;
+  }
+  .play-btn:hover { opacity: 0.8; }
+
+  /* ─── LAB ─── */
+  #lab { background: var(--dark-bg); color: var(--dark-text); }
+
+  .lab-body {
+    flex: 1; display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0; overflow: hidden;
+    max-height: calc(100vh - 52px);
+  }
+
+  @media (max-width: 720px) {
+    .lab-body { grid-template-columns: 1fr; max-height: none; }
+  }
+
+  .lab-config {
+    background: var(--dark-surface);
+    border-right: 1px solid var(--dark-border);
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex; flex-direction: column; gap: 1.25rem;
+  }
+
+  .lab-output {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+
+  .lab-section-label {
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--dark-mute);
+    margin-bottom: 0.6rem;
+  }
+
+  .task-tabs {
+    display: flex; gap: 0; border-radius: 4px;
+    background: var(--dark-bg); padding: 3px;
+    border: 1px solid var(--dark-border);
+  }
+  .task-tab {
+    flex: 1; background: none; border: none; cursor: pointer;
+    padding: 0.45rem; border-radius: 3px;
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+    color: var(--dark-mute); transition: all 0.15s;
+  }
+  .task-tab:hover { color: var(--dark-text); }
+  .task-tab.active { background: var(--dark-surface); color: var(--dark-text); }
+
+  .model-select {
+    width: 100%; background: var(--dark-bg);
+    border: 1px solid var(--dark-border); border-radius: 4px;
+    padding: 0.55rem 0.75rem; color: var(--dark-text);
+    font-family: var(--font-body); font-size: 0.85rem;
+    outline: none; cursor: pointer;
+  }
+  .model-select:focus { border-color: var(--blue); }
+
+  .data-textarea, .prompt-textarea {
+    width: 100%; background: var(--dark-bg);
+    border: 1px solid var(--dark-border); border-radius: 4px;
+    padding: 0.75rem; color: var(--dark-text);
+    font-family: var(--font-mono); font-size: 0.8rem;
+    line-height: 1.6; resize: vertical; outline: none;
+  }
+  .data-textarea { min-height: 120px; }
+  .prompt-textarea { min-height: 100px; }
+  .data-textarea:focus, .prompt-textarea:focus { border-color: var(--blue); }
+
+  .run-btn {
+    width: 100%; background: var(--blue); color: #fff;
+    border: none; padding: 0.7rem; border-radius: 4px;
+    font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .run-btn:hover:not(:disabled) { background: var(--blue-dim); }
+  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .output-area {
+    flex: 1; background: var(--dark-bg);
+    border: 1px solid var(--dark-border); border-radius: 4px;
+    padding: 1rem; font-family: var(--font-mono);
+    font-size: 0.82rem; line-height: 1.7;
+    white-space: pre-wrap; overflow-y: auto;
+    min-height: 200px; color: var(--dark-text);
+  }
+
+  .output-empty {
+    color: var(--dark-mute); font-family: var(--font-body);
+    font-size: 0.875rem; text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .output-label-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .loading-dots span {
+    display: inline-block; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--blue);
+    margin: 0 2px;
+    animation: blink 1.2s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+  /* ─── DISCLAIMER ─── */
+  #disclaimer {
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .disclaimer-inner {
+    max-width: 580px;
+    background: var(--dark-surface);
+    border: 1px solid var(--dark-border);
+    border-radius: 6px;
+    padding: 2.5rem;
+  }
+
+  .disclaimer-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--dark-text);
+    margin-bottom: 1.5rem;
+  }
+
+  .disclaimer-section { margin-bottom: 1.25rem; }
+
+  .disclaimer-heading {
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--blue);
+    margin-bottom: 0.4rem;
+  }
+
+  .disclaimer-text {
+    font-size: 0.83rem; line-height: 1.65; color: var(--dark-mute);
+  }
+
+  .disclaimer-accept {
+    background: var(--blue); color: #fff;
+    border: none; width: 100%; padding: 0.75rem;
+    border-radius: 4px; font-family: var(--font-body);
+    font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    transition: background 0.15s; margin-top: 1.75rem;
+  }
+  .disclaimer-accept:hover { background: var(--blue-dim); }
+
+  /* ─── CURIOSITY GAP EXPANDABLE ─── */
+  .why-block {
+    margin-top: 1rem;
+    border: 1px solid rgba(28,24,20,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .why-toggle {
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: 0.7rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 500;
+    color: var(--ink-soft); text-align: left;
+    transition: background 0.15s;
+  }
+  .why-toggle:hover { background: rgba(28,24,20,0.04); }
+  .why-arrow { font-size: 0.7rem; transition: transform 0.2s; }
+  .why-arrow.open { transform: rotate(180deg); }
+  .why-content {
+    display: none; padding: 0 1rem 0.9rem;
+    font-size: 0.82rem; line-height: 1.65; color: var(--ink-soft);
+    border-top: 1px solid rgba(28,24,20,0.07);
+    padding-top: 0.75rem;
+  }
+  .why-content.open { display: block; }
+
+  /* Predict noisy chart label */
+  .chart-label {
+    font-size: 0.7rem; fill: var(--ink-mute);
+    font-family: var(--font-body);
+  }
+
+  /* ─── FILE UPLOAD (V1.1) ─── */
+  .upload-btn {
+    background: none; border: 1px solid var(--dark-border); border-radius: 3px;
+    padding: 0.25rem 0.6rem; font-family: var(--font-body); font-size: 0.7rem;
+    font-weight: 500; color: var(--dark-mute); cursor: pointer;
+    transition: border-color 0.15s, color 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .upload-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 1rem 1.75rem;
+    font-size: 0.75rem;
+    border-top: 1px solid;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+  }
+  .footer-sandbox { background: var(--sand); border-color: rgba(28,24,20,0.08); color: var(--ink-mute); }
+  .footer-dark { background: var(--dark-surface); border-color: var(--dark-border); color: var(--dark-mute); }
+  .footer-link { background: none; border: none; cursor: pointer; font-size: 0.75rem; text-decoration: underline; }
+  .footer-sandbox .footer-link { color: var(--ink-mute); }
+  .footer-dark .footer-link { color: var(--dark-mute); }
+
+  /* Lab footer inline */
+  .lab-footer {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.72rem;
+    border-top: 1px solid var(--dark-border);
+    color: var(--dark-mute);
+    background: var(--dark-surface);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.5rem;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+  <div style="background:var(--dark-surface);color:var(--dark-mute);font-size:0.72rem;padding:0.5rem 1.25rem;text-align:center;border-bottom:1px solid var(--dark-border);">
+    This is a standalone Sandbox preview — category selector, workspace, and Lab require the full React app. See README.
+  </div>
+<div id="disclaimer" class="view active">
+  <div class="disclaimer-inner">
+    <div class="disclaimer-title">Before you begin</div>
+
+    <div class="disclaimer-section">
+      <div class="disclaimer-heading">What Nexus is</div>
+      <div class="disclaimer-text">Nexus is an educational tool for learning AI concepts through interaction. It connects to locally installed AI models on your own machine. No data is sent to external servers.</div>
+    </div>
+
+    <div class="disclaimer-section">
+      <div class="disclaimer-heading">AI Output Disclaimer</div>
+      <div class="disclaimer-text">AI model outputs are generated automatically and may be inaccurate, incomplete, or misleading. Do not rely on Nexus outputs for decisions involving health, legal matters, financial planning, safety, or any consequential purpose. Always verify important information with qualified professionals.</div>
+    </div>
+
+    <div class="disclaimer-section">
+      <div class="disclaimer-heading">No Warranty</div>
+      <div class="disclaimer-text">Nexus is provided "as is" without warranty of any kind. The author makes no representations about the accuracy, reliability, or fitness of this tool for any purpose. Use is entirely at your own risk.</div>
+    </div>
+
+    <div class="disclaimer-section">
+      <div class="disclaimer-heading">Appropriate Use</div>
+      <div class="disclaimer-text">Nexus is intended for educational and experimental use only. Do not use it to process sensitive personal data, confidential information, or any content that you do not have the right to share. Do not use Nexus to generate harmful, deceptive, or unlawful content.</div>
+    </div>
+
+    <div class="disclaimer-section">
+      <div class="disclaimer-heading">Local Models</div>
+      <div class="disclaimer-text">Nexus requires Ollama and local AI models installed on your machine. The behavior and quality of outputs depend entirely on the models you have installed and how you configure them.</div>
+    </div>
+
+    <button class="disclaimer-accept" onclick="acceptDisclaimer()">I understand — take me to Nexus</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════ LANDING ═══════════════════════ -->
+<div id="landing" class="view">
+  <div class="landing-grain"></div>
+  <div class="landing-inner">
+    <div class="nexus-wordmark">Nexus</div>
+    <div class="landing-tagline">Learn AI concepts by doing. Then do them for real.</div>
+
+    <div class="space-cards">
+      <button class="space-card sandbox-card" onclick="goTo('sandbox')">
+        <span class="card-label">Sandbox</span>
+        <span class="card-sub">Learn by playing with ideas</span>
+        <span class="card-arrow">→</span>
+      </button>
+      <button class="space-card lab-card" onclick="goTo('lab')">
+        <span class="card-label" style="color:var(--dark-text)">Lab</span>
+        <span class="card-sub" style="color:var(--dark-mute)">Run your own experiments</span>
+        <span class="card-arrow" style="color:var(--dark-text)">→</span>
+      </button>
+    </div>
+  </div>
+
+  <footer class="footer-sandbox">
+    <span>Made by Josh Carter</span>
+    <button class="footer-link" onclick="showDisclaimer()">Disclaimer &amp; Terms</button>
+  </footer>
+</div>
+
+<!-- ═══════════════════════ SANDBOX ═══════════════════════ -->
+<div id="sandbox" class="view">
+  <nav class="top-nav nav-sandbox">
+    <div class="nav-left">
+      <button class="nav-home" onclick="goTo('landing')">Nexus</button>
+      <span class="nav-space">Sandbox</span>
+    </div>
+    <button class="nav-back" onclick="goTo('landing')">← Home</button>
+  </nav>
+
+  <div class="sb-body">
+    <div class="sb-concepts">
+      <button class="sb-concept-btn active" onclick="sbConcept('recommend',this)">Recommend</button>
+      <button class="sb-concept-btn" onclick="sbConcept('group',this)">Group</button>
+      <button class="sb-concept-btn" onclick="sbConcept('predict',this)">Predict</button>
+    </div>
+
+    <!-- RECOMMEND -->
+    <div class="sb-concept-area active" id="sb-recommend">
+      <div class="concept-title">Recommend</div>
+      <div class="concept-desc">How AI finds connections across things that seem unrelated on the surface.</div>
+      <div class="level-tabs">
+        <button class="level-tab active" onclick="sbLevel('recommend','play',this)">Play</button>
+        <button class="level-tab" onclick="sbLevel('recommend','see',this)">See</button>
+        <button class="level-tab" onclick="sbLevel('recommend','build',this)">Build</button>
+        <button class="level-tab" onclick="sbLevel('recommend','rec-explore',this)">Explore</button>
+      </div>
+
+      <div class="level-panel active" id="rec-play">
+        <div class="play-canvas" id="rec-canvas">
+          <div class="rec-nodes" id="rec-nodes"></div>
+        </div>
+        <p class="play-hint">These are someone's interests. Click one — see what it connects to.</p>
+        <div class="why-block" id="rec-why" style="display:none">
+          <button class="why-toggle" onclick="toggleWhy('rec-why-content','rec-why-arrow')">
+            <span>Why did it connect those?</span>
+            <span class="why-arrow" id="rec-why-arrow">▼</span>
+          </button>
+          <div class="why-content" id="rec-why-content"></div>
+        </div>
+      </div>
+
+      <div class="level-panel" id="rec-see">
+        <div class="see-card">
+          <p class="see-explanation">The system isn't matching by category or label — it's measuring latent similarity across many dimensions at once. "Early mornings" and "crime novels" don't look alike, but they share qualities like slowness, sustained attention, and solitude. That's why a recommendation can feel both surprising and right.</p>
+          <div class="see-diagram">
+            <div class="diagram-node">Early mornings</div>
+            <div class="diagram-arrow">⟷</div>
+            <div class="diagram-node" style="background:rgba(196,124,43,0.1);border-color:var(--amber)">Solitude · Slow pace · Focus</div>
+            <div class="diagram-arrow">⟷</div>
+            <div class="diagram-node">Crime novels</div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:1rem">The surprising connections aren't mistakes — they're the system finding structure you hadn't named yet.</p>
+        </div>
+      </div>
+
+      <div class="level-panel" id="rec-build">
+        <div class="build-card">
+          <div class="build-label">Connection threshold — how many dimensions must align?</div>
+          <input type="range" class="build-slider" min="1" max="4" value="2" id="rec-slider" oninput="updateRecSlider(this.value)" />
+          <div class="build-slider-labels"><span>Loose (more connections)</span><span>Strict (fewer, stronger)</span></div>
+          <div class="rec-nodes" id="rec-build-nodes" style="justify-content:flex-start;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;"></div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-bottom:1rem">Notice how tightening the threshold doesn't just reduce results — it changes which ones survive.</p>
+          <div class="bridge-invite">
+            <span class="bridge-text">Ready to try this on your own data?</span>
+            <button class="bridge-btn" onclick="goToLabTask('recommend')">Open in Lab →</button>
+          </div>
+        </div>
+      </div>
+      <div class="level-panel" id="rec-explore">
+        <div class="see-card">
+          <p class="see-explanation" style="font-weight:500;color:var(--ink);margin-bottom:0.5rem">A harder question.</p>
+          <p class="see-explanation">What counts as similar? Two people who both enjoy hiking might have nothing else in common — one craves solitude, the other the social ritual. The system has to choose which dimensions to measure, and that choice shapes everything that gets recommended.</p>
+          <p class="see-explanation" style="margin-top:0.75rem">This is why recommendation systems can feel uncanny — and why they sometimes feel completely off. The dimensions being measured are often invisible to the user, and sometimes to the designers too.</p>
+          <div class="see-diagram" style="margin-top:1rem">
+            <div class="diagram-node">Same surface interest</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="background:rgba(155,92,71,0.1);border-color:var(--clay)">Different latent profile</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="border-style:dashed">Different recommendation</div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:1.25rem"><strong>Where this appears in the world:</strong> music and video streaming, research paper discovery, job matching, product recommendations. Anywhere a system is deciding "you might also like."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUP -->
+    <div class="sb-concept-area" id="sb-group">
+      <div class="concept-title">Group</div>
+      <div class="concept-desc">How AI finds structure in things that don't come with labels.</div>
+      <div class="level-tabs">
+        <button class="level-tab active" onclick="sbLevel('group','scatter',this)">Play</button>
+        <button class="level-tab" onclick="sbLevel('group','gsee',this)">See</button>
+        <button class="level-tab" onclick="sbLevel('group','gbuild',this)">Build</button>
+        <button class="level-tab" onclick="sbLevel('group','gexplore',this)">Explore</button>
+      </div>
+
+      <div class="level-panel active" id="group-scatter">
+        <div class="play-canvas" style="flex-direction:column;gap:1rem;">
+          <div class="group-canvas" id="group-canvas"></div>
+          <div class="cluster-legend" id="cluster-legend"></div>
+        </div>
+        <div style="text-align:center">
+          <button class="play-btn" id="group-btn" onclick="toggleGroup()">Group them →</button>
+        </div>
+        <p class="play-hint">These are cities. What do you think they have in common?</p>
+        <div class="why-block" id="group-why" style="display:none">
+          <button class="why-toggle" onclick="toggleWhy('group-why-content','group-why-arrow')">
+            <span>Why did it group those together?</span>
+            <span class="why-arrow" id="group-why-arrow">▼</span>
+          </button>
+          <div class="why-content" id="group-why-content">The system grouped by patterns across climate, density, and geography simultaneously — not by country or continent. That's why Tokyo and São Paulo end up together (dense, humid, coastal-adjacent megacities), while Reykjavik lands with Zurich (small, cold-climate, high-livability). The groupings reflect structure the data contained, not labels anyone assigned.</div>
+        </div>
+      </div>
+
+      <div class="level-panel" id="group-gsee">
+        <div class="see-card">
+          <p class="see-explanation">The system doesn't know what "type" of city these are — it only sees numbers. Population density, average temperature, geographic latitude. It finds which cities are close to each other across all those dimensions at once. The labels come after the clusters are found, not before.</p>
+          <div class="see-diagram">
+            <div class="diagram-node">Mixed cities</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="background:rgba(74,96,117,0.12);border-color:var(--slate)">Measure distance across dimensions</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node">Emergent groups</div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:1rem">This is why the groups can be surprising — the system found structure you didn't tell it to look for.</p>
+        </div>
+      </div>
+
+      <div class="level-panel" id="group-gbuild">
+        <div class="build-card">
+          <div class="build-label">Number of groups — watch what merges or splits</div>
+          <input type="range" class="build-slider" min="2" max="4" value="3" id="cluster-slider" oninput="updateClusters(this.value)" />
+          <div class="build-slider-labels"><span>2 groups</span><span>4 groups</span></div>
+          <div class="group-canvas" id="group-build-canvas" style="height:200px;"></div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:0.75rem">With fewer groups, the system is forced to merge cities that are somewhat different. With more, it splits things that were close but not identical. Neither answer is wrong — it depends on what question you're asking.</p>
+          <div class="bridge-invite" style="margin-top:1rem">
+            <span class="bridge-text">Ready to try this on your own data?</span>
+            <button class="bridge-btn" onclick="goToLabTask('group')">Open in Lab →</button>
+          </div>
+        </div>
+      </div>
+      <div class="level-panel" id="gexplore">
+        <div class="see-card">
+          <p class="see-explanation" style="font-weight:500;color:var(--ink);margin-bottom:0.5rem">A harder question.</p>
+          <p class="see-explanation">Who decides how many groups there should be? The algorithm doesn't. Ask for 2 and you get broad categories. Ask for 8 and you get fine-grained distinctions that may or may not be meaningful. The number of clusters is always a human decision — and it shapes everything the system finds.</p>
+          <p class="see-explanation" style="margin-top:0.75rem">This means two researchers using the same algorithm on the same data can reach completely different conclusions — not because one is wrong, but because they asked different questions before they started.</p>
+          <div class="see-diagram" style="margin-top:1rem">
+            <div class="diagram-node">Same data</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="background:rgba(74,96,117,0.12);border-color:var(--slate)">Different k</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="border-style:dashed">Different structure found</div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:1.25rem"><strong>Where this appears in the world:</strong> customer segmentation, market research, document organization, genomics, anomaly detection. Anywhere someone is trying to find natural structure in unlabeled data.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREDICT -->
+    <div class="sb-concept-area" id="sb-predict">
+      <div class="concept-title">Predict</div>
+      <div class="concept-desc">How AI extends patterns forward — and why it can be confidently wrong.</div>
+      <div class="level-tabs">
+        <button class="level-tab active" onclick="sbLevel('predict','pplay',this)">Play</button>
+        <button class="level-tab" onclick="sbLevel('predict','psee',this)">See</button>
+        <button class="level-tab" onclick="sbLevel('predict','pbuild',this)">Build</button>
+        <button class="level-tab" onclick="sbLevel('predict','pexplore',this)">Explore</button>
+      </div>
+
+      <div class="level-panel active" id="predict-pplay">
+        <div class="play-canvas" style="flex-direction:column;padding:1.5rem;gap:1rem;">
+          <div style="font-size:0.78rem;color:var(--ink-mute);text-align:left;width:100%">Weekly step counts — someone's last 10 weeks</div>
+          <svg class="predict-svg" id="predict-svg-play" viewBox="0 0 560 180"></svg>
+          <button class="play-btn" id="predict-btn" onclick="runPrediction()">Predict next 3 weeks →</button>
+        </div>
+        <p class="play-hint">Look at the shape before you click. Where do you think it goes?</p>
+        <div class="why-block" id="predict-why" style="display:none">
+          <button class="why-toggle" onclick="toggleWhy('predict-why-content','predict-why-arrow')">
+            <span>Why did it predict that, given all the noise?</span>
+            <span class="why-arrow" id="predict-why-arrow">▼</span>
+          </button>
+          <div class="why-content" id="predict-why-content">The system averaged through the week-to-week variation to find the underlying trend. Individual dips — illness, travel, a bad week — get smoothed out. What remains is the general direction. This is useful, but it also means the system will miss a genuine change in behavior until enough new data overrides the old trend.</div>
+        </div>
+      </div>
+
+      <div class="level-panel" id="predict-psee">
+        <div class="see-card">
+          <p class="see-explanation">The system doesn't predict the exact next value — it finds the trend beneath the noise and projects it forward. That's why it can be simultaneously reasonable and wrong: the trend was real, but something changed. The further forward you predict, the wider the uncertainty grows.</p>
+          <div class="see-diagram">
+            <div class="diagram-node">Noisy data</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="background:rgba(91,138,240,0.12);border-color:var(--blue)">Trend extracted</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="border-style:dashed;opacity:0.7">Projection ±uncertainty</div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:1rem">The prediction is always a bet on the past continuing. It has no way to know when something fundamentally changes.</p>
+        </div>
+      </div>
+
+      <div class="level-panel" id="predict-pbuild">
+        <div class="build-card">
+          <div class="build-label">Click the chart to add points — try drawing something non-linear</div>
+          <svg class="predict-svg" id="predict-svg-build" viewBox="0 0 560 180" style="cursor:crosshair;background:var(--sand);border-radius:4px;" onclick="addPredictPoint(event)"></svg>
+          <div style="display:flex;gap:0.75rem;margin-top:0.75rem;align-items:center">
+            <button class="play-btn" style="margin:0;padding:0.4rem 0.9rem;font-size:0.78rem" onclick="resetPredictBuild()">Reset</button>
+            <span style="font-size:0.78rem;color:var(--ink-mute)">Try a curve, a plateau, or a sudden drop</span>
+          </div>
+          <div class="build-label" style="margin-top:1rem">How much history the system uses</div>
+          <input type="range" class="build-slider" min="2" max="8" value="4" id="predict-slider" oninput="updatePredictBuild()" />
+          <div class="build-slider-labels"><span>Only recent points</span><span>Full history</span></div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-bottom:1rem">With a curve or plateau: does the prediction follow the bend, or project the old trend past it?</p>
+          <div class="bridge-invite">
+            <span class="bridge-text">Ready to try this on your own data?</span>
+            <button class="bridge-btn" onclick="goToLabTask('predict')">Open in Lab →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="level-panel" id="pexplore">
+        <div class="see-card">
+          <p class="see-explanation" style="font-weight:500;color:var(--ink);margin-bottom:0.5rem">A harder question.</p>
+          <p class="see-explanation">How far out can you trust a prediction? Uncertainty compounds. One step ahead is much more reliable than ten steps ahead. And if the underlying pattern changes — a product launch, a policy shift, an external event — the model has no way to know. It keeps predicting based on what it learned, even when the world has already shifted.</p>
+          <p class="see-explanation" style="margin-top:0.75rem">This is the central limitation of all prediction: the model is always reasoning about the future using evidence from the past. It cannot detect a regime change until after it has already happened and enough new data has accumulated to override the old pattern.</p>
+          <div class="see-diagram" style="margin-top:1rem">
+            <div class="diagram-node">Past pattern</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="background:rgba(91,138,240,0.12);border-color:var(--blue)">Model learns</div>
+            <div class="diagram-arrow">→</div>
+            <div class="diagram-node" style="border-style:dashed;opacity:0.7">Projects forward<br><span style="font-size:0.7rem;opacity:0.7">even if world changed</span></div>
+          </div>
+          <p style="font-size:0.8rem;color:var(--ink-mute);margin-top:1.25rem"><strong>Where this appears in the world:</strong> demand forecasting, capacity planning, churn prediction, financial modeling, weather prediction. Anywhere the future is being estimated from patterns in the past.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer-sandbox">
+    <span>Made by Josh Carter</span>
+    <button class="footer-link" onclick="showDisclaimer()">Disclaimer &amp; Terms</button>
+  </footer>
+</div>
+
+<!-- ═══════════════════════ LAB ═══════════════════════ -->
+<div id="lab" class="view">
+  <nav class="top-nav nav-lab">
+    <div class="nav-left">
+      <button class="nav-home" style="color:var(--dark-text)" onclick="goTo('landing')">Nexus</button>
+      <span class="nav-space">Lab</span>
+    </div>
+    <button class="nav-back" onclick="goTo('landing')">← Home</button>
+  </nav>
+
+  <div class="lab-body">
+    <!-- Config -->
+    <div class="lab-config">
+      <div>
+        <div class="lab-section-label">Task</div>
+        <div class="task-tabs">
+          <button class="task-tab active" id="tab-recommend" onclick="labTask('recommend',this)">Recommend</button>
+          <button class="task-tab" id="tab-group" onclick="labTask('group',this)">Group</button>
+          <button class="task-tab" id="tab-predict" onclick="labTask('predict',this)">Predict</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="lab-section-label">Model</div>
+        <select class="model-select" id="model-select">
+          <option value="">Loading models…</option>
+        </select>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem">
+          <div class="lab-section-label" style="margin:0">Your data</div>
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <span id="upload-filename" style="font-size:0.68rem;color:var(--blue);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none"></span>
+            <button class="upload-btn" onclick="document.getElementById('file-upload').click()" title="Upload .txt, .csv, or .json">↑ Upload file</button>
+            <input type="file" id="file-upload" accept=".txt,.csv,.json" style="display:none" onchange="handleFileUpload(this)" />
+          </div>
+        </div>
+        <textarea class="data-textarea" id="data-input" placeholder="Paste your data here, or upload a .txt, .csv, or .json file"></textarea>
+      </div>
+
+      <div>
+        <div class="lab-section-label">Prompt <span style="font-size:0.65rem;color:var(--dark-mute);font-weight:normal;text-transform:none;letter-spacing:0">(editable)</span></div>
+        <textarea class="prompt-textarea" id="prompt-input"></textarea>
+      </div>
+
+      <button class="run-btn" id="run-btn" onclick="runLab()">
+        <span id="run-label">Run</span>
+      </button>
+    </div>
+
+    <!-- Output -->
+    <div class="lab-output">
+      <div class="output-label-row">
+        <div class="lab-section-label" style="margin:0">Result</div>
+        <div class="loading-dots" id="loading-dots" style="display:none"><span></span><span></span><span></span></div>
+      </div>
+      <div class="output-area" id="output-area">
+        <div class="output-empty">Results will appear here after you run an experiment.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lab-footer">
+    <span>Made by Josh Carter</span>
+    <div style="display:flex;gap:1rem">
+      <span style="color:var(--dark-mute);font-size:0.72rem">AI outputs may be inaccurate. For educational use only.</span>
+      <button class="footer-link footer-dark" onclick="showDisclaimer()">Disclaimer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── NAV ───
+const VIEWS = ['disclaimer','landing','sandbox','lab'];
+let disclaimerAccepted = false;
+
+function showView(id) {
+  VIEWS.forEach(v => {
+    const el = document.getElementById(v);
+    el.classList.toggle('active', v === id);
+  });
+}
+
+function acceptDisclaimer() {
+  disclaimerAccepted = true;
+  showView('landing');
+}
+
+function showDisclaimer() {
+  // Show disclaimer overlay from current view — just navigate to it
+  showView('disclaimer');
+}
+
+function goTo(view) {
+  if (!disclaimerAccepted && view !== 'disclaimer') { showView('disclaimer'); return; }
+  if (view === 'sandbox') initSandbox();
+  if (view === 'lab') initLab();
+  showView(view);
+}
+
+function goToLabTask(task) {
+  labTask(task, document.getElementById('tab-' + task));
+  goTo('lab');
+}
+
+// ─── SANDBOX NAV ───
+function sbConcept(id, btn) {
+  document.querySelectorAll('.sb-concept-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sb-concept-area').forEach(a => a.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sb-' + id).classList.add('active');
+}
+
+function sbLevel(concept, levelId, btn) {
+  const area = document.getElementById('sb-' + concept);
+  area.querySelectorAll('.level-tab').forEach(b => b.classList.remove('active'));
+  area.querySelectorAll('.level-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(levelId).classList.add('active');
+}
+
+// ─── RECOMMEND LOGIC ───
+// Human interests with latent (non-obvious) connections
+const REC_ITEMS = [
+  'Early mornings', 'Crime novels', 'Long walks', 'Cooking shows',
+  'Solo travel', 'Bouldering', 'Journaling', 'Minimalism',
+  'Jazz', 'Street photography'
+];
+
+// Connections based on latent qualities, not surface category
+// Early mornings ↔ Crime novels: solitude, slow time, sustained focus
+// Long walks ↔ Jazz: improvisation, no destination, ambient attention
+// Solo travel ↔ Street photography: observation without participation
+// Bouldering ↔ Journaling: deliberate effort, iterative, personal metric
+// Cooking shows ↔ Minimalism: reduction, craft, sensory precision
+const REC_NEIGHBORS = {
+  'Early mornings':    { 'Crime novels': 'Both reward slow, uninterrupted attention', 'Journaling': 'Both are solitary rituals that structure thought', 'Minimalism': 'Both involve intentional reduction of noise' },
+  'Crime novels':      { 'Early mornings': 'Both reward slow, uninterrupted attention', 'Solo travel': 'Both are forms of careful, sustained observation', 'Jazz': 'Both follow structures that reward patience' },
+  'Long walks':        { 'Jazz': 'Both are non-linear, open-ended, and ambient', 'Street photography': 'Both are about noticing without intervening', 'Solo travel': 'Both privilege unstructured discovery' },
+  'Cooking shows':     { 'Minimalism': 'Both are about craft through reduction', 'Bouldering': 'Both reward deliberate technique over force', 'Jazz': 'Both involve improvisation within structure' },
+  'Solo travel':       { 'Street photography': 'Both involve observation without participation', 'Long walks': 'Both privilege unstructured discovery', 'Crime novels': 'Both are forms of careful, sustained observation' },
+  'Bouldering':        { 'Journaling': 'Both are iterative, personal, and self-measured', 'Cooking shows': 'Both reward deliberate technique over force', 'Minimalism': 'Both strip away complexity to find what matters' },
+  'Journaling':        { 'Early mornings': 'Both are solitary rituals that structure thought', 'Bouldering': 'Both are iterative, personal, and self-measured', 'Minimalism': 'Both involve intentional reduction of noise' },
+  'Minimalism':        { 'Journaling': 'Both involve intentional reduction of noise', 'Early mornings': 'Both involve intentional reduction of noise', 'Cooking shows': 'Both are about craft through reduction' },
+  'Jazz':              { 'Long walks': 'Both are non-linear, open-ended, and ambient', 'Crime novels': 'Both follow structures that reward patience', 'Cooking shows': 'Both involve improvisation within structure' },
+  'Street photography':{ 'Solo travel': 'Both involve observation without participation', 'Long walks': 'Both are about noticing without intervening', 'Crime novels': 'Both are forms of careful, sustained observation' }
+};
+
+let lastRecSelected = null;
+
+function buildRecNodes(containerId, threshold) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  REC_ITEMS.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'rec-node';
+    btn.textContent = item;
+    btn.onclick = () => selectRec(item, containerId, threshold || 2);
+    container.appendChild(btn);
+  });
+}
+
+function selectRec(item, containerId, threshold) {
+  lastRecSelected = item;
+  const neighbors = Object.keys(REC_NEIGHBORS[item]).slice(0, threshold);
+  document.querySelectorAll(`#${containerId} .rec-node`).forEach(btn => {
+    const t = btn.textContent;
+    btn.className = 'rec-node';
+    if (t === item) btn.classList.add('selected');
+    else if (neighbors.includes(t)) btn.classList.add('neighbor');
+    else btn.classList.add('dim');
+  });
+
+  // Show curiosity-gap expandable after selection (Play only)
+  if (containerId === 'rec-nodes') {
+    const whyBlock = document.getElementById('rec-why');
+    const whyContent = document.getElementById('rec-why-content');
+    whyBlock.style.display = 'block';
+    const reasons = neighbors.map(n =>
+      `<strong>${n}</strong> — ${REC_NEIGHBORS[item][n]}.`
+    ).join('<br><br>');
+    whyContent.innerHTML = reasons || 'Select an item to see its connections.';
+    // Reset open state
+    whyContent.classList.remove('open');
+    document.getElementById('rec-why-arrow').classList.remove('open');
+  }
+}
+
+function updateRecSlider(val) {
+  buildBuildRecNodes(parseInt(val));
+}
+
+function buildBuildRecNodes(threshold) {
+  const container = document.getElementById('rec-build-nodes');
+  container.innerHTML = '';
+  REC_ITEMS.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'rec-node';
+    btn.textContent = item;
+    btn.onclick = () => selectBuildRec(item, threshold);
+    container.appendChild(btn);
+  });
+}
+
+function selectBuildRec(item, threshold) {
+  buildBuildRecNodes(threshold);
+  const neighbors = Object.keys(REC_NEIGHBORS[item]).slice(0, threshold);
+  document.querySelectorAll('#rec-build-nodes .rec-node').forEach(btn => {
+    const t = btn.textContent;
+    btn.className = 'rec-node';
+    if (t === item) btn.classList.add('selected');
+    else if (neighbors.includes(t)) btn.classList.add('neighbor');
+    else btn.classList.add('dim');
+  });
+}
+
+// ─── GROUP LOGIC ───
+// Cities — grouped by climate+density+geography, NOT by continent/country
+// The clustering is genuinely non-obvious until revealed
+const GROUP_ITEMS = [
+  {label:'Tokyo',cat:0},{label:'São Paulo',cat:0},{label:'Mumbai',cat:0},{label:'Lagos',cat:0},
+  {label:'New York',cat:0},{label:'Jakarta',cat:0},
+  {label:'Reykjavik',cat:1},{label:'Zurich',cat:1},{label:'Oslo',cat:1},{label:'Vancouver',cat:1},
+  {label:'Helsinki',cat:1},
+  {label:'Cairo',cat:2},{label:'Riyadh',cat:2},{label:'Phoenix',cat:2},
+  {label:'Nairobi',cat:2},{label:'Lima',cat:2}
+];
+const CLUSTER_COLORS = ['#9b5c47','#4a6075','#c47c2b','#5b8af0'];
+const CLUSTER_NAMES = [
+  'Dense · Humid · High-growth',
+  'Cold · High-livability · Compact',
+  'Arid · Sun-intense · Dry',
+  'Mixed'
+];
+
+let grouped = false;
+let currentClusterCount = 3;
+
+function initGroupCanvas(canvasId, count, animate) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  canvas.innerHTML = '';
+  const w = canvas.offsetWidth || 500;
+  const h = canvas.offsetHeight || 260;
+
+  const cx = Array.from({length:count}, (_,i) => (w * (i+1)) / (count+1));
+  const cy = h / 2;
+
+  GROUP_ITEMS.forEach((item, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'group-dot';
+    dot.textContent = item.label.slice(0, 5);
+    dot.title = item.label;
+    const cluster = item.cat % count;
+    dot.style.background = CLUSTER_COLORS[cluster];
+    dot.style.width = '46px';
+    dot.style.height = '46px';
+    dot.style.fontSize = '0.5rem';
+    dot.style.borderRadius = '50%';
+
+    // Always start scattered
+    const rx = 20 + Math.random() * (w - 80);
+    const ry = 20 + Math.random() * (h - 60);
+    dot.style.left = rx + 'px';
+    dot.style.top = ry + 'px';
+
+    canvas.appendChild(dot);
+
+    if (animate) {
+      setTimeout(() => {
+        const spread = 52;
+        const col = idx % Math.ceil(GROUP_ITEMS.length / count);
+        const row = Math.floor(idx / Math.ceil(GROUP_ITEMS.length / count));
+        const angle = (col / 5) * Math.PI * 2;
+        dot.style.left = (cx[cluster] + Math.cos(angle) * spread - 23) + 'px';
+        dot.style.top = (cy + Math.sin(angle) * spread * 0.65 - 23) + 'px';
+      }, 60 + idx * 30);
+    }
+  });
+}
+
+function toggleGroup() {
+  grouped = !grouped;
+  initGroupCanvas('group-canvas', 3, grouped);
+  const legend = document.getElementById('cluster-legend');
+  if (grouped) {
+    legend.innerHTML = CLUSTER_NAMES.slice(0,3).map((n,i) =>
+      `<div class="cluster-chip"><div class="cluster-dot" style="background:${CLUSTER_COLORS[i]}"></div>${n}</div>`
+    ).join('');
+    document.getElementById('group-btn').textContent = 'Scatter';
+    document.getElementById('group-why').style.display = 'block';
+  } else {
+    legend.innerHTML = '';
+    document.getElementById('group-btn').textContent = 'Group them →';
+    document.getElementById('group-why').style.display = 'none';
+    document.getElementById('group-why-content').classList.remove('open');
+    document.getElementById('group-why-arrow').classList.remove('open');
+  }
+}
+
+function updateClusters(val) {
+  currentClusterCount = parseInt(val);
+  initGroupCanvas('group-build-canvas', currentClusterCount, true);
+}
+
+// ─── PREDICT LOGIC ───
+// Noisy weekly step counts — underlying upward trend with realistic variance
+// The trend is real but not obvious at first glance
+const PREDICT_KNOWN = [5200, 6800, 4900, 7200, 6100, 7800, 5600, 8200, 7100, 8900];
+const PREDICT_WEEKS = ['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10'];
+
+let predictShown = false;
+let predictBuildPoints = [];
+const PREDICT_BUILD_DEFAULTS = [[60,140],[110,115],[160,130],[210,100],[270,90],[330,75]];
+
+function drawPredictPlay(svgId, showPred) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  svg.innerHTML = '';
+  const W = 560, H = 180, PAD = 40;
+  const pts = PREDICT_KNOWN;
+  const minV = Math.min(...pts) * 0.85;
+  const maxV = Math.max(...pts) * 1.1;
+  const n = pts.length;
+  const xs = pts.map((_,i) => PAD + (i * (W - PAD*2) / (n - 1)));
+  const toY = v => H - PAD*0.6 - ((v - minV) / (maxV - minV)) * (H - PAD*1.4);
+  const ys = pts.map(toY);
+
+  // Subtle grid
+  for (let g = 0; g <= 3; g++) {
+    const y = PAD*0.6 + g * (H - PAD*1.4) / 3;
+    const gl = document.createElementNS('http://www.w3.org/2000/svg','line');
+    gl.setAttribute('x1', PAD); gl.setAttribute('x2', W - PAD*0.5);
+    gl.setAttribute('y1', y); gl.setAttribute('y2', y);
+    gl.setAttribute('stroke','rgba(28,24,20,0.07)'); gl.setAttribute('stroke-width','1');
+    svg.appendChild(gl);
+  }
+
+  // Week labels
+  xs.forEach((x, i) => {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x); t.setAttribute('y', H - 4);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('class','chart-label');
+    t.setAttribute('font-size','9'); t.setAttribute('fill','rgba(28,24,20,0.35)');
+    t.textContent = PREDICT_WEEKS[i];
+    svg.appendChild(t);
+  });
+
+  // Data line
+  const path = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  path.setAttribute('points', xs.map((x,i) => `${x},${ys[i]}`).join(' '));
+  path.setAttribute('fill','none'); path.setAttribute('stroke','rgba(28,24,20,0.7)');
+  path.setAttribute('stroke-width','1.5'); path.setAttribute('stroke-linejoin','round');
+  svg.appendChild(path);
+
+  // Data dots
+  xs.forEach((x,i) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x); c.setAttribute('cy',ys[i]);
+    c.setAttribute('r','4'); c.setAttribute('fill','#1c1814');
+    svg.appendChild(c);
+  });
+
+  if (showPred) {
+    // Linear regression for trend
+    const sumX = xs.reduce((a,b)=>a+b,0), sumY = ys.reduce((a,b)=>a+b,0);
+    const sumXY = xs.reduce((s,x,i)=>s+x*ys[i],0);
+    const sumXX = xs.reduce((s,x)=>s+x*x,0);
+    const slope = (n*sumXY - sumX*sumY)/(n*sumXX - sumX*sumX);
+    const intercept = (sumY - slope*sumX)/n;
+
+    const step = (W - PAD*2) / (n - 1);
+    const lastX = xs[n-1];
+    const predXs = [lastX, lastX+step, lastX+step*2, lastX+step*3];
+    const predYs = predXs.map(x => intercept + slope*x);
+
+    // Uncertainty band — widens with distance
+    const bandPts = predXs.map((x,i) => [x, predYs[i] - i*5]);
+    const bandPtsRev = predXs.slice().reverse().map((x,i) => [x, predYs[predXs.length-1-i] + i*5 + 10]);
+    const band = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    band.setAttribute('points', [...bandPts, ...bandPtsRev].map(p=>`${p[0]},${p[1]}`).join(' '));
+    band.setAttribute('fill','rgba(196,124,43,0.08)');
+    svg.appendChild(band);
+
+    // Trend line through known data (lighter)
+    const trendLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+    trendLine.setAttribute('x1', xs[0]); trendLine.setAttribute('y1', intercept + slope*xs[0]);
+    trendLine.setAttribute('x2', lastX); trendLine.setAttribute('y2', predYs[0]);
+    trendLine.setAttribute('stroke','rgba(196,124,43,0.25)'); trendLine.setAttribute('stroke-width','1');
+    trendLine.setAttribute('stroke-dasharray','3,3');
+    svg.appendChild(trendLine);
+
+    // Prediction line
+    const predPath = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    predPath.setAttribute('points', predXs.map((x,i)=>`${x},${predYs[i]}`).join(' '));
+    predPath.setAttribute('fill','none'); predPath.setAttribute('stroke','#c47c2b');
+    predPath.setAttribute('stroke-width','2'); predPath.setAttribute('stroke-dasharray','6,4');
+    svg.appendChild(predPath);
+
+    // Prediction dots (open)
+    predXs.slice(1).forEach((x,i) => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',x); c.setAttribute('cy',predYs[i+1]);
+      c.setAttribute('r','4.5'); c.setAttribute('fill','none');
+      c.setAttribute('stroke','#c47c2b'); c.setAttribute('stroke-width','2');
+      svg.appendChild(c);
+    });
+
+    // Week labels for predictions
+    ['W11','W12','W13'].forEach((w,i) => {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', predXs[i+1]); t.setAttribute('y', H - 4);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('font-size','9');
+      t.setAttribute('fill','rgba(196,124,43,0.6)'); t.textContent = w;
+      svg.appendChild(t);
+    });
+
+    // Show curiosity block
+    document.getElementById('predict-why').style.display = 'block';
+  }
+}
+
+function runPrediction() {
+  if (predictShown) {
+    predictShown = false;
+    drawPredictPlay('predict-svg-play', false);
+    document.getElementById('predict-btn').textContent = 'Predict next 3 weeks →';
+    document.getElementById('predict-why').style.display = 'none';
+    document.getElementById('predict-why-content').classList.remove('open');
+    document.getElementById('predict-why-arrow').classList.remove('open');
+    return;
+  }
+  predictShown = true;
+  drawPredictPlay('predict-svg-play', true);
+  document.getElementById('predict-btn').textContent = 'Reset';
+}
+
+function resetPredictBuild() {
+  predictBuildPoints = PREDICT_BUILD_DEFAULTS.map(p => [...p]);
+  updatePredictBuild();
+}
+
+function addPredictPoint(event) {
+  const svg = event.currentTarget;
+  const rect = svg.getBoundingClientRect();
+  const scaleX = 560 / rect.width;
+  const scaleY = 180 / rect.height;
+  const x = (event.clientX - rect.left) * scaleX;
+  const y = (event.clientY - rect.top) * scaleY;
+  predictBuildPoints.push([x, y]);
+  updatePredictBuild();
+}
+
+function updatePredictBuild() {
+  const svg = document.getElementById('predict-svg-build');
+  if (!svg) return;
+  svg.innerHTML = '';
+  const pts = predictBuildPoints.slice().sort((a,b) => a[0]-b[0]);
+  if (pts.length < 2) {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x','280'); t.setAttribute('y','95');
+    t.setAttribute('text-anchor','middle'); t.setAttribute('fill','rgba(28,24,20,0.3)');
+    t.setAttribute('font-size','13'); t.textContent = 'Click to add data points';
+    svg.appendChild(t);
+    return;
+  }
+
+  // Data line
+  const path = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  path.setAttribute('points', pts.map(p=>`${p[0]},${p[1]}`).join(' '));
+  path.setAttribute('fill','none'); path.setAttribute('stroke','rgba(28,24,20,0.7)');
+  path.setAttribute('stroke-width','1.5');
+  svg.appendChild(path);
+
+  pts.forEach(p => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]);
+    c.setAttribute('r','4'); c.setAttribute('fill','#1c1814');
+    svg.appendChild(c);
+  });
+
+  if (pts.length >= 2) {
+    const history = parseInt(document.getElementById('predict-slider').value);
+    const sample = pts.slice(-Math.min(history, pts.length));
+    const n = sample.length;
+    const sumX = sample.reduce((s,p)=>s+p[0],0);
+    const sumY = sample.reduce((s,p)=>s+p[1],0);
+    const sumXY = sample.reduce((s,p)=>s+p[0]*p[1],0);
+    const sumXX = sample.reduce((s,p)=>s+p[0]*p[0],0);
+    const denom = n*sumXX - sumX*sumX;
+    if (Math.abs(denom) < 0.001) return;
+    const slope = (n*sumXY - sumX*sumY) / denom;
+    const intercept = (sumY - slope*sumX) / n;
+    const lastX = pts[pts.length-1][0];
+    const step = 55;
+    const predXs = [lastX, lastX+step, lastX+step*2, lastX+step*3].filter(x => x <= 555);
+    const predYs = predXs.map(x => intercept + slope*x);
+
+    // Uncertainty band
+    const band = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    const upper = predXs.map((x,i) => [x, predYs[i]-i*6]);
+    const lower = predXs.slice().reverse().map((x,i,arr) => [x, predYs[arr.length-1-i]+i*6+8]);
+    band.setAttribute('points', [...upper,...lower].map(p=>`${p[0]},${p[1]}`).join(' '));
+    band.setAttribute('fill','rgba(196,124,43,0.1)');
+    svg.appendChild(band);
+
+    if (predXs.length > 1) {
+      const predPath = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      predPath.setAttribute('points', predXs.map((x,i)=>`${x},${predYs[i]}`).join(' '));
+      predPath.setAttribute('fill','none'); predPath.setAttribute('stroke','#c47c2b');
+      predPath.setAttribute('stroke-width','2'); predPath.setAttribute('stroke-dasharray','5,4');
+      svg.appendChild(predPath);
+      predXs.slice(1).forEach((x,i) => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx',x); c.setAttribute('cy',predYs[i+1]);
+        c.setAttribute('r','4'); c.setAttribute('fill','none');
+        c.setAttribute('stroke','#c47c2b'); c.setAttribute('stroke-width','2');
+        svg.appendChild(c);
+      });
+    }
+  }
+}
+
+// ─── FILE UPLOAD (V1.1) ───────────────────────────────────────────────────────
+
+function parseTxt(text) {
+  return text.trim();
+}
+
+function parseCsv(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length === 0) return text;
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const hasHeaders = isNaN(Number(headers[0]));
+  if (!hasHeaders || lines.length === 1) {
+    return lines.map(l =>
+      l.split(',').map(v => v.trim().replace(/^"|"$/g, '')).join(', ')
+    ).join('\n');
+  }
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    return headers.map((h, i) => `${h}: ${vals[i] ?? ''}`).join(', ');
+  }).join('\n');
+}
+
+function parseJson(text) {
+  try { return JSON.stringify(JSON.parse(text), null, 2); }
+  catch { return text; }
+}
+
+function handleFileUpload(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['txt','csv','json'].includes(ext)) {
+    document.getElementById('output-area').textContent = `Unsupported file type ".${ext}". Upload a .txt, .csv, or .json file.`;
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    let parsed;
+    if (ext === 'csv')       parsed = parseCsv(e.target.result);
+    else if (ext === 'json') parsed = parseJson(e.target.result);
+    else                     parsed = parseTxt(e.target.result);
+    document.getElementById('data-input').value = parsed;
+    const label = document.getElementById('upload-filename');
+    label.textContent = file.name;
+    label.style.display = 'inline';
+  };
+  reader.onerror = () => {
+    document.getElementById('output-area').textContent = 'Could not read file.';
+  };
+  reader.readAsText(file);
+}
+
+// ─── LAB LOGIC ───
+const LAB_DEFAULTS = {
+  recommend: {
+    prompt: `You are a recommendation assistant. The user will give you a list of items. Recommend the 3 items from the list most similar to the first item. Return only a numbered list of recommendations with one sentence explaining each connection. Be specific and concise.`,
+    data: `The Midnight Library by Matt Haig\nRecursion by Blake Crouch\nDark Matter by Blake Crouch\nThe Alchemist by Paulo Coelho\nProject Hail Mary by Andy Weir\nNorwegian Wood by Haruki Murakami\nFlowers for Algernon by Daniel Keyes\nThe Hitchhiker's Guide to the Galaxy by Douglas Adams`
+  },
+  group: {
+    prompt: `You are a grouping assistant. The user will give you a list of items. Organize them into 3 natural groups based on their similarities. Return the groups in this format:\nGroup 1 — [Name]: item, item, item\nGroup 2 — [Name]: item, item, item\nGroup 3 — [Name]: item, item, item\nName each group with a short descriptive label.`,
+    data: `wakes up without an alarm\nchecks phone before getting up\nexercises in the morning\nmakes a to-do list daily\neats the same breakfast every day\nworks in 90-minute blocks\nresponds to messages in batches\nscrolls social media at night\nsleeps at inconsistent times\njournals before bed\nleaves tasks half-finished\nplans the week on Sunday`
+  },
+  predict: {
+    prompt: `You are a pattern recognition assistant. The user will give you a sequence of numbers or items. Identify the pattern and predict the next 3 values. Show your reasoning in one sentence, then give only the 3 predicted values on a new line.`,
+    data: `Week 1: 42 active users\nWeek 2: 38 active users\nWeek 3: 51 active users\nWeek 4: 47 active users\nWeek 5: 55 active users\nWeek 6: 60 active users\nWeek 7: 58 active users`
+  }
+};
+
+let currentLabTask = 'recommend';
+let labRunning = false;
+
+function labTask(task, btn) {
+  currentLabTask = task;
+  document.querySelectorAll('.task-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('data-input').value = LAB_DEFAULTS[task].data;
+  document.getElementById('prompt-input').value = LAB_DEFAULTS[task].prompt;
+  document.getElementById('output-area').innerHTML = '<div class="output-empty">Results will appear here after you run an experiment.</div>';
+  const label = document.getElementById('upload-filename');
+  if (label) { label.textContent = ''; label.style.display = 'none'; }
+  const fileInput = document.getElementById('file-upload');
+  if (fileInput) fileInput.value = '';
+}
+
+async function loadModels() {
+  const sel = document.getElementById('model-select');
+  try {
+    const res = await fetch('http://localhost:8000/models');
+    const data = await res.json();
+    if (data.models && data.models.length > 0) {
+      sel.innerHTML = data.models.map(m => `<option value="${m}">${m}</option>`).join('');
+    } else {
+      sel.innerHTML = '<option value="">No models found — is Ollama running?</option>';
+    }
+  } catch {
+    sel.innerHTML = '<option value="">Backend not reachable — start the server</option>';
+  }
+}
+
+async function runLab() {
+  if (labRunning) return;
+  const model = document.getElementById('model-select').value;
+  const data = document.getElementById('data-input').value.trim();
+  const prompt = document.getElementById('prompt-input').value.trim();
+
+  if (!model || !data) {
+    document.getElementById('output-area').textContent = 'Please select a model and enter some data.';
+    return;
+  }
+
+  labRunning = true;
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('run-label').textContent = 'Running…';
+  document.getElementById('loading-dots').style.display = 'flex';
+  document.getElementById('output-area').innerHTML = '';
+
+  try {
+    const res = await fetch('http://localhost:8000/run', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({task: currentLabTask, data, model, prompt})
+    });
+    const result = await res.json();
+    if (result.error) {
+      document.getElementById('output-area').textContent = 'Error: ' + result.error;
+    } else {
+      document.getElementById('output-area').textContent = result.result || '(no output)';
+    }
+  } catch (e) {
+    document.getElementById('output-area').textContent = 'Could not reach backend. Is the Nexus backend running on port 8000?';
+  }
+
+  labRunning = false;
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('run-label').textContent = 'Run';
+  document.getElementById('loading-dots').style.display = 'none';
+}
+
+// ─── CURIOSITY GAP ───
+function toggleWhy(contentId, arrowId) {
+  const content = document.getElementById(contentId);
+  const arrow = document.getElementById(arrowId);
+  content.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+// ─── INIT ───
+function initSandbox() {
+  buildRecNodes('rec-nodes', 2);
+  buildBuildRecNodes(2);
+  if (!grouped) initGroupCanvas('group-canvas', 3, false);
+  initGroupCanvas('group-build-canvas', 3, true);
+  drawPredictPlay('predict-svg-play', false);
+  predictBuildPoints = PREDICT_BUILD_DEFAULTS.map(p => [...p]);
+  updatePredictBuild();
+}
+
+function initLab() {
+  document.getElementById('data-input').value = LAB_DEFAULTS[currentLabTask].data;
+  document.getElementById('prompt-input').value = LAB_DEFAULTS[currentLabTask].prompt;
+  loadModels();
+}
+
+// Init predict build chart with default points on load
+setTimeout(() => { updatePredictBuild(); }, 100);
+</script>
+</body>
+</html>
